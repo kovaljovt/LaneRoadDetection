@@ -1,6 +1,10 @@
-#include <iostream>
+#include "UI.h"
 
-int main() {
-    std::cout << "Hello, World!" << std::endl;
-    return 0;
+
+int main(int argc, char** argv) {
+    QApplication application(argc, argv);
+    UI ui;
+    ui.show();
+
+    return QApplication::exec();
 }
