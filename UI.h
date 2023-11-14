@@ -6,6 +6,8 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QApplication>
+#include <QMessageLogger>
+#include <QPalette>
 
 #include <opencv2/opencv.hpp>
 
@@ -20,11 +22,15 @@ private:
 public:
     UI();
 
-    void startButtonStyling(QPushButton& startButton);
-    void stopButtonStyling(QPushButton& stopButton);
-    void restartButtonStyling(QPushButton& restartButton);
+    void startButtonStyle(QPushButton& startButton);
+    void stopButtonStyle(QPushButton& stopButton);
+    void restartButtonStyle(QPushButton& stopButton);
+    void backwardsButtonStyle(QPushButton& backwardsButton);
+    void forwardsButtonStyle(QPushButton& forwardsButton);
 
     void startButtonClick();
     void stopButtonClick();
     void restartButtonClick();
+    void backwardsButtonClick();
+    void forwardsButtonClick();
 };
