@@ -11,8 +11,6 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "VideoPlayer.h"
-
 
 class UI: public QWidget {
 private:
@@ -31,6 +29,6 @@ public:
     void startButtonClick();
     void stopButtonClick();
     void restartButtonClick();
-    void backwardsButtonClick();
     void forwardsButtonClick();
+    void backwardsButtonClick();
 };

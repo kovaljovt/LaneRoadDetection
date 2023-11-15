@@ -107,12 +107,11 @@ void UI::restartButtonClick() {
 }
 
 
-void UI::backwardsButtonClick() {
-
-}
-
-
 void UI::forwardsButtonClick() {
 
 }
 
+
+void UI::backwardsButtonClick() {
+
+}
