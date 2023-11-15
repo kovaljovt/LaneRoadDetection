@@ -1,24 +1,10 @@
-#include "VideoPlayer.h"
+#include "UI.h"
+
 
 int main(int argc, char** argv) {
-//    QApplication application(argc, argv);
-//    UI ui;
-//    ui.show();
-//
-//    return QApplication::exec();
+    QApplication application(argc, argv);
+    UI ui;
+    ui.show();
 
-    std::vector<std::string> videoPaths = {
-            "/home/tibor/Desktop/LaneRoadDetection/videos/dashcam1.mp4",
-            "/home/tibor/Desktop/LaneRoadDetection/videos/dashcam1.mp4",
-            "/home/tibor/Desktop/LaneRoadDetection/videos/dashcam1.mp4",
-            "/home/tibor/Desktop/LaneRoadDetection/videos/dashcam1.mp4",
-            "/home/tibor/Desktop/LaneRoadDetection/videos/dashcam1.mp4",
-            "/home/tibor/Desktop/LaneRoadDetection/videos/dashcam1.mp4",
-    };
-
-    VideoPlayer player(videoPaths);
-
-    player.run();
-
-    return 0;
+    return QApplication::exec();
 }

@@ -32,7 +32,7 @@ int main() {
                 videoIndex--;
                 capture.open(videoPaths[videoIndex]);
             } else {
-                std::cerr << "Already at the beginning of the video list." << '\n';
+                std::cerr << "You are at the beggining!" << '\n';
             }
         }
         else if (key == 'n' || key == 'N') {
@@ -41,7 +41,7 @@ int main() {
                 capture.open(videoPaths[videoIndex]);
             }
             else {
-                std::cerr << "Already at the end of the video list." << '\n';
+                std::cerr << "Your are at the end!" << '\n';
             }
         }
     }
