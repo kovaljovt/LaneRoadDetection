@@ -93,17 +93,17 @@ void UI::forwardsButtonStyle(QPushButton& forwardsButton) {
 
 
 void UI::startButtonClick() {
-    // Your start button click logic here
+
 }
 
 
 void UI::stopButtonClick() {
-    // Your stop button click logic here
+
 }
 
 
 void UI::restartButtonClick() {
-    // Your restart button click logic here
+
 }
 
 
