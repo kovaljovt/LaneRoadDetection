@@ -11,6 +11,7 @@ set(SOURCE_FILES
         main.cpp
         UI.cpp
         VideoPlayer.cpp
+        VideoPLayerTest.cpp
 )
 
 add_executable(LaneRoadDetection ${SOURCE_FILES})
