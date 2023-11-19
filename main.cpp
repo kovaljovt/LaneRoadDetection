@@ -1,10 +1,9 @@
-#include "UI.h"
+#include <opencv2/opencv.hpp>
 
 
-int main(int argc, char** argv) {
-    QApplication application(argc, argv);
-    UI ui;
-    ui.show();
-
-    return QApplication::exec();
+int main() {
+    cv::Mat image = cv::imread("/home/tibor/Desktop/LaneRoadDetection/lenna.png");
+    cv::imshow("Image", image);
+    cv::waitKey();
+    return 0;
 }

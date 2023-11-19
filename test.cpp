@@ -1,11 +1,35 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
 #include <opencv2/opencv.hpp>
 
 
-int main() {
+void moveForward(int& videoIndex,
+                 const std::vector<std::string>& videoPaths,
+                 cv::VideoCapture& capture) {
+    if (videoIndex < videoPaths.size() - 1) {
+        videoIndex++;
+        capture.open(videoPaths[videoIndex]);
+    }
+    else {
+        std::cerr << "You are at the end!" << '\n';
+    }
+}
+
+
+void moveBackwards(int& videoIndex,
+                   const std::vector<std::string>& videoPaths,
+                   cv::VideoCapture& capture) {
+    if (videoIndex > 0) {
+        videoIndex--;
+        capture.open(videoPaths[videoIndex]);
+    } else {
+        std::cerr << "You are at the beginning!" << '\n';
+    }
+}
+
+
+int test() {
     std::vector<std::string> videoPaths = {
             "/home/tibor/Desktop/LaneRoadDetection/videos/dashcam1.mp4",
             "/home/tibor/Desktop/LaneRoadDetection/videos/dashcam2.mp4",
@@ -28,21 +52,10 @@ int main() {
             break;
         }
         else if (key == 'b' || key == 'B') {
-            if (videoIndex > 0) {
-                videoIndex--;
-                capture.open(videoPaths[videoIndex]);
-            } else {
-                std::cerr << "You are at the beggining!" << '\n';
-            }
+            moveBackwards(videoIndex, videoPaths, capture);
         }
         else if (key == 'n' || key == 'N') {
-            if (videoIndex < videoPaths.size() - 1) {
-                videoIndex++;
-                capture.open(videoPaths[videoIndex]);
-            }
-            else {
-                std::cerr << "Your are at the end!" << '\n';
-            }
+            moveForward(videoIndex, videoPaths, capture);
         }
     }
 
