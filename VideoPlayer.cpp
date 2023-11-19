@@ -1,6 +1,9 @@
 #include "VideoPlayer.h"
 
 
+VideoPlayer::VideoPlayer() = default;
+
+
 void VideoPlayer::initializeVideoCapture() {
     videoCapture.open(videoPaths[videoIndex]);
 }
@@ -8,7 +11,7 @@ void VideoPlayer::initializeVideoCapture() {
 
 void VideoPlayer::nextVideo() {
     if (videoIndex == videoPaths.size() - 1) {
-        cv::destroyAllWindows();
+        std::cerr << "You are at the end!" << '\n';
         return;
     }
     videoIndex++;
@@ -18,7 +21,7 @@ void VideoPlayer::nextVideo() {
 
 void VideoPlayer::previousVideo() {
     if (videoIndex == 0) {
-        cv::destroyAllWindows();
+        std::cerr << "You are at the beginning!" << '\n';
         return;
     }
     videoIndex--;

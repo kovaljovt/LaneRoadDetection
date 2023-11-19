@@ -1,9 +1,10 @@
-#include <opencv2/opencv.hpp>
+#include "VideoPlayer.h"
 
 
 int main() {
-    cv::Mat image = cv::imread("/home/tibor/Desktop/LaneRoadDetection/lenna.png");
-    cv::imshow("Image", image);
-    cv::waitKey();
+    VideoPlayer player;
+    player.initializeVideoCapture();
+    player.run();
+
     return 0;
 }
