@@ -1,10 +1,9 @@
-#include "VideoPlayer.h"
+#include "Application.h"
 
 
 int main() {
-    VideoPlayer player;
-    player.initializeVideoCapture();
-    player.run();
+    Application app;
+    app.runApp();
 
     return 0;
 }

@@ -16,17 +16,17 @@ private:
             "/home/tibor/Desktop/LaneRoadDetection/videos/dashcam5.mp4",
             "/home/tibor/Desktop/LaneRoadDetection/videos/dashcam6.mp4",
     };
+
     int videoIndex = 0;
     cv::VideoCapture videoCapture;
     cv::Mat img;
-
-    void nextVideo();
-    void previousVideo();
-    void switchVideo();
 
 public:
     VideoPlayer();
 
     void initializeVideoCapture();
-    void run();
+    cv::Mat getFrame();
+    void nextVideo();
+    void previousVideo();
+    void switchVideo();
 };

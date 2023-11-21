@@ -10,6 +10,7 @@ add_subdirectory(glfw)
 
 add_executable(${PROJECT_NAME}
         main.cpp
+        RoadDetection.cpp
         Application.cpp
         VideoPlayer.cpp
         imgui/imgui_demo.cpp
