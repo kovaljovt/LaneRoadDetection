@@ -10,9 +10,9 @@ add_subdirectory(glfw)
 
 add_executable(${PROJECT_NAME}
         main.cpp
-        RoadDetection.cpp
-        Application.cpp
-        VideoPlayer.cpp
+        src/RoadDetection.cpp
+        src/Application.cpp
+        src/VideoPlayer.cpp
         imgui/imgui_demo.cpp
         glad/src/glad.c
         imgui/imgui_draw.cpp

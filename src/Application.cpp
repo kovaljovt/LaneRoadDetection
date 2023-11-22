@@ -19,7 +19,7 @@ void Application::runApp() {
 
     window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Lane Road Detection", nullptr, nullptr);
     if (window == nullptr) {
-        std::cout << "Failed to create GLFW window" << std::endl;
+        std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return;
     }
@@ -28,7 +28,7 @@ void Application::runApp() {
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cout << "Failed to initialize GLAD" << std::endl;
+        std::cerr << "Failed to initialize GLAD" << std::endl;
         return;
     }
 
@@ -72,6 +72,8 @@ void Application::runApp() {
             ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
             ImGui::End();
         }
+
+        /* **** APPLICATION **** */
 
         if (isPlaying) {
             cv::Mat frame = player.getFrame();
@@ -128,6 +130,8 @@ void Application::runApp() {
         glfwPollEvents();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
+
+        /* **** APPLICATION **** */
     }
 
     glfwTerminate();
