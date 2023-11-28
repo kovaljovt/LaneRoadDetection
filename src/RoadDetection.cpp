@@ -86,3 +86,44 @@ bool RoadDetection::isDayTime(cv::Mat &source) {
     return true;
 }
 
+cv::Mat RoadDetection::regionOfInterest(cv::Mat &source) {
+    /* big trapezoid */
+    float trapezoidBottomWidth = 1.0;
+    float trapezoidTopWidth = 0.07;
+    float trapezoidHeight = 0.5;
+
+    /* small trapezoid */
+    float smallBottomWidth = 0.45;
+    float smallTopWidth = 0.3;
+    float smallHeight = 1.0;
+
+    float bar = 0.97;
+
+    std::vector<cv::Point> pts;
+
+    /* big trapezoid */
+    pts.emplace_back((source.cols * (1 - trapezoidBottomWidth)) / 2, source.rows * bar);
+    pts.emplace_back((source.cols * (1 - trapezoidTopWidth)) / 2, source.rows - source.rows * trapezoidHeight);
+    pts.emplace_back(source.cols - (source.cols * (1 - trapezoidTopWidth) ) / 2,
+                     source.rows - source.rows * trapezoidHeight); // Top right
+    pts.emplace_back(source.cols - (source.cols * (1 - trapezoidBottomWidth)) / 2,
+                     source.rows * bar);
+
+    /* small trapezoid */
+    pts.emplace_back((source.cols * (1 - trapezoidBottomWidth + smallBottomWidth)) / 2,
+                     source.rows * bar);
+    pts.emplace_back((source.cols * (1 - trapezoidTopWidth * smallTopWidth)) / 2,
+                     source.rows - source.rows * trapezoidHeight * smallHeight);
+    pts.emplace_back(source.cols - (source.cols * (1 - trapezoidTopWidth * smallTopWidth)) / 2,
+                     source.rows - source.rows * trapezoidHeight * smallHeight);
+    pts.emplace_back(source.cols - (source.cols * (1 - trapezoidBottomWidth + smallBottomWidth)) / 2,
+                     source.rows * bar);
+
+    cv::Mat mask = cv::Mat::zeros(source.size(), source.type());
+    cv::fillPoly(mask, pts, cv::Scalar(255, 255, 255));
+
+    cv::Mat maskedImage;
+    cv::bitwise_and(source, mask, maskedImage);
+
+    return maskedImage;
+}
