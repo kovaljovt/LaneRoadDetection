@@ -1,6 +1,5 @@
 #include "RoadDetection.h"
 
-
 cv::Mat RoadDetection::applyGrayscale(cv::Mat& source) {
     if (source.empty()) {
         std::cerr << "Input frame is empty" << '\n';
@@ -9,7 +8,6 @@ cv::Mat RoadDetection::applyGrayscale(cv::Mat& source) {
     cv::cvtColor(source, output, cv::COLOR_BGR2GRAY);
     return output;
 }
-
 
 cv::Mat RoadDetection::applyGaussianBlur(cv::Mat& source) {
     if (source.empty()) {
@@ -20,7 +18,6 @@ cv::Mat RoadDetection::applyGaussianBlur(cv::Mat& source) {
     return output;
 }
 
-
 cv::Mat RoadDetection::applyCanny(cv::Mat &source) {
     if (source.empty()) {
         std::cerr << "The input image/frame is empty" << '\n';
@@ -29,7 +26,6 @@ cv::Mat RoadDetection::applyCanny(cv::Mat &source) {
     cv::Canny(source, output, 50, 150);
     return output;
 }
-
 
 cv::Mat RoadDetection::filterColors(cv::Mat &source, bool isDayTime) {
     cv::Mat hsv;
@@ -74,7 +70,6 @@ cv::Mat RoadDetection::filterColors(cv::Mat &source, bool isDayTime) {
 
     return whiteYellow;
 }
-
 
 bool RoadDetection::isDayTime(cv::Mat &source) {
     cv::Scalar sample = cv::mean(source);
@@ -126,4 +121,29 @@ cv::Mat RoadDetection::regionOfInterest(cv::Mat &source) {
     cv::bitwise_and(source, mask, maskedImage);
 
     return maskedImage;
+}
+
+std::vector<cv::Vec4i> RoadDetection::houghLines(cv::Mat &canny,
+                                                 cv::Mat &source,
+                                                 bool drawHough) {
+    double rho = 2;
+    double theta = 1 * M_PI / 180;
+    int thresh = 15;
+    double minLineLength = 10;
+    double maxGapLength = 20;
+
+    std::vector<cv::Vec4i> linesP;
+    cv::HoughLinesP(canny, linesP, rho, theta, thresh, minLineLength, maxGapLength);
+
+    if (drawHough) {
+        for (size_t i = 0; i < linesP.size(); i++) {
+            cv::Vec4i l = linesP[i];
+            cv::line(source, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]),
+                   cv::Scalar(0,0,255), 3, cv::LINE_AA);
+        }
+        cv::imshow("Hough Lines", source);
+        cv::waitKey();
+    }
+
+    return linesP;
 }

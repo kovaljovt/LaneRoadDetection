@@ -10,6 +10,7 @@ add_subdirectory(glfw)
 
 add_executable(${PROJECT_NAME}
         main.cpp
+        src/Regression.h
         src/RoadDetection.cpp
         src/Application.cpp
         src/VideoPlayer.cpp
