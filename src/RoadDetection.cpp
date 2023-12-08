@@ -147,3 +147,95 @@ std::vector<cv::Vec4i> RoadDetection::houghLines(cv::Mat &canny,
 
     return linesP;
 }
+
+cv::Mat RoadDetection::drawLanes(cv::Mat &source, std::vector<cv::Vec4i> lines) {
+    if (lines.size() == 0) {
+        return source;
+    }
+
+    // Set drawing lanes to true
+    bool drawRightLane = true;
+    bool drawLeftLane = true;
+
+    // Find lines with a slope higher than the slope threshold
+    float slopeThreshold = 0.5;
+    std::vector<float> slopes;
+    std::vector<cv::Vec4i> goodLines;
+
+    for (int i = 0; i < lines.size(); i++) {
+        cv::Vec4i l = lines[i];
+        double slope;
+
+        if (l[2] - l[0] == 0) {
+            slope = 999;
+        } else {
+            slope = (l[3] - l[1]) / (l[2] / l[0]);
+        }
+        if (abs(slope) > 0.5) {
+            slopes.push_back(slope);
+            goodLines.push_back(l);
+        }
+    }
+
+    std::vector<cv::Vec4i> rightLines;
+    std::vector<cv::Vec4i> leftLines;
+    int imgCenter = source.cols / 2;
+
+    for (int i = 0; i < slopes.size(); i++)
+    {
+        if (slopes[i] > 0 && goodLines[i][0] > imgCenter && goodLines[i][2] > imgCenter)
+        {
+            rightLines.push_back(goodLines[i]);
+        }
+        if (slopes[i] < 0 && goodLines[i][0] < imgCenter && goodLines[i][2] < imgCenter)
+        {
+            leftLines.push_back(goodLines[i]);
+        }
+    }
+
+    // We start with the right side points
+    std::vector< int > rightLinesX;
+    std::vector< int > rightLinesY;
+    double rightB1, rightB0; // Slope and intercept
+
+    for (int i = 0; i < rightLines.size(); i++)
+    {
+        rightLinesX.push_back(rightLines[i][0]); // X of starting point of line
+        rightLinesX.push_back(rightLines[i][2]); // X of ending point of line
+        rightLinesY.push_back(rightLines[i][1]); // Y of starting point of line
+        rightLinesY.push_back(rightLines[i][3]); // Y of ending point of line
+    }
+
+    if (rightLinesX.size() > 0)
+    {
+        std::vector< double > coefficientRight = estimateCoefficients<int, double>(rightLinesX, rightLinesY); // y = b1x + b0
+        rightB1 = coefficientRight[0];
+        rightB0 = coefficientRight[1];
+    } else {
+        rightB1 = 1;
+        rightB0 = 1;
+        drawRightLane = false;
+    }
+
+    std::vector< int > leftLinesX;
+    std::vector< int > leftLinesY;
+    double leftB1, leftB0; // Slope and intercept
+
+    for (int i = 0; i < leftLines.size(); i++)
+    {
+        leftLinesX.push_back(leftLines[i][0]); // X of starting point of line
+        leftLinesX.push_back(leftLines[i][2]); // X of ending point of line
+        leftLinesY.push_back(leftLines[i][1]); // Y of starting point of line
+        leftLinesY.push_back(leftLines[i][3]); // Y of ending point of line
+    }
+
+    if (leftLinesX.size() > 0) {
+        std::vector< double > coefficientLeft = estimateCoefficients<int, double>(leftLinesX, leftLinesY); // y = b1x + b0
+        leftB1 = coefficientLeft[0];
+        leftB0 = coefficientLeft[1];
+    } else {
+        leftB1 = 1;
+        leftB0 = 1;
+        drawLeftLane = false;
+    }
+}

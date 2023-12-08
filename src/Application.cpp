@@ -1,12 +1,9 @@
 #include "Application.h"
 
-
 Application::Application() = default;
-
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
-
 
 void Application::runApp() {
     VideoPlayer player;
@@ -75,12 +72,21 @@ void Application::runApp() {
 
         /* **** APPLICATION **** */
 
+        RoadDetection detection;
+
         if (isPlaying) {
             cv::Mat frame = player.getFrame();
             if (frame.rows == 0) {
                 player.nextVideo();
                 frame = player.getFrame();
             }
+
+            bool isDay = detection.isDayTime(frame);
+            cv::Mat filteredImg = detection.filterColors(frame, isDay);
+            cv::Mat gray = detection.applyGrayscale(filteredImg);
+            cv::Mat blur = detection.applyGaussianBlur(gray);
+            cv::Mat edges = detection.applyCanny(blur);
+            cv::Mat maskedImg = detection.regionOfInterest(edges);
 
             cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
             if (img != 0) { glDeleteTextures(1, &img); }

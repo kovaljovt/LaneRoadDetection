@@ -14,7 +14,6 @@
 #include "VideoPlayer.h"
 #include "RoadDetection.h"
 
-
 class Application {
 public:
     GLFWwindow* window{};
