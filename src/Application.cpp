@@ -81,12 +81,15 @@ void Application::runApp() {
                 frame = player.getFrame();
             }
 
-            bool isDay = detection.isDayTime(frame);
-            cv::Mat filteredImg = detection.filterColors(frame, isDay);
+            cv::Mat image = frame.clone();
+            bool isDay = detection.isDayTime(image);
+            cv::Mat filteredImg = detection.filterColors(image, isDay);
             cv::Mat gray = detection.applyGrayscale(filteredImg);
             cv::Mat blur = detection.applyGaussianBlur(gray);
             cv::Mat edges = detection.applyCanny(blur);
             cv::Mat maskedImg = detection.regionOfInterest(edges);
+            std::vector<cv::Vec4i> linesP = detection.houghLines(maskedImg, image.clone(), false);
+            frame = detection.drawLanes(image, linesP);
 
             cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
             if (img != 0) { glDeleteTextures(1, &img); }

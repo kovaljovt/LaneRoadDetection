@@ -28,46 +28,40 @@ cv::Mat RoadDetection::applyCanny(cv::Mat &source) {
 }
 
 cv::Mat RoadDetection::filterColors(cv::Mat &source, bool isDayTime) {
-    cv::Mat hsv;
-    cv::Mat whiteImage;
-    cv::Mat whiteMask;
-    cv::Mat yellowImage;
-    cv::Mat yellowMask;
-    cv::Mat whiteYellow;
+    cv::Mat hsv, whiteMask, whiteImage, yellowMask, yellowImage, whiteYellow;
 
-    if (source.empty()) {
-        std::cerr << "The input image/frame is empty" << '\n';
+    // White mask
+    std::vector< int > lowerWhite = {130, 130, 130};
+    std::vector< int > upperWhite = {255, 255, 255};
+    inRange(source, lowerWhite, upperWhite, whiteMask);
+    bitwise_and(source, source, whiteImage, whiteMask);
+
+    // Yellow mask
+    cvtColor(source, hsv, cv::COLOR_BGR2HSV);
+    std::vector< int > lowerYellow = {20, 100, 110};
+    std::vector< int > upperYellow = {30, 180, 240};
+    inRange(hsv, lowerYellow, upperYellow, yellowMask);
+    bitwise_and(source, source, yellowImage, yellowMask);
+
+    // Blend yellow and white together
+    addWeighted(whiteImage, 1., yellowImage, 1., 0., whiteYellow);
+
+    // Add gray filter if image is not taken during the day
+    if (isDayTime == false)
+    {
+        // Gray mask
+        cv::Mat grayMask, grayImage, grayAndWhite, dst;
+        std::vector< int > lowerGray = {80, 80, 80};
+        std::vector< int > upperGray = {130, 130, 130};
+        inRange(source, lowerGray, upperGray, grayMask);
+        bitwise_and(source, source, grayImage, grayMask);
+
+        // Blend gray, yellow and white together and return the result
+        addWeighted(grayImage, 1., whiteYellow, 1., 0., dst);
+        return dst;
     }
 
-    /* white mask */
-    std::vector<int> lowerWhite = {130, 130, 130};
-    std::vector<int> upperWhite = {255, 255, 255};
-    cv::inRange(source, lowerWhite, upperWhite, whiteMask);
-    cv::bitwise_and(source, source, whiteImage, whiteMask);
-
-    /* yellow mask */
-    cv::cvtColor(source, hsv, cv::COLOR_BGR2HSV);
-    std::vector<int> lowerYellow = {20, 100, 110};
-    std::vector<int> upperYellow = {30, 180, 240};
-    cv::inRange(hsv, lowerYellow, upperYellow, yellowMask);
-    cv::bitwise_and(source, source, yellowImage, yellowMask);
-
-    /* Blending yellow and white together */
-    cv::addWeighted(whiteImage, 1., yellowImage, 1., 0., whiteYellow);
-
-    /* Adding gray filter if image is not taken during the day */
-    if (!isDayTime) {
-        cv::Mat grayMask;
-        cv::Mat grayImage;
-        cv::Mat grayAndWhite;
-        cv::Mat output;
-        std::vector<int> lowerGray = {80, 80, 80};
-        std::vector<int> upperGray = {130, 130, 130};
-        cv::inRange(source, lowerGray, upperGray, grayMask);
-        cv::addWeighted(grayImage, 1., whiteYellow, 1., 0., output);
-        return output;
-    }
-
+    // Return white and yellow mask if image is taken during the day
     return whiteYellow;
 }
 
@@ -121,31 +115,6 @@ cv::Mat RoadDetection::regionOfInterest(cv::Mat &source) {
     cv::bitwise_and(source, mask, maskedImage);
 
     return maskedImage;
-}
-
-std::vector<cv::Vec4i> RoadDetection::houghLines(cv::Mat &canny,
-                                                 cv::Mat &source,
-                                                 bool drawHough) {
-    double rho = 2;
-    double theta = 1 * M_PI / 180;
-    int thresh = 15;
-    double minLineLength = 10;
-    double maxGapLength = 20;
-
-    std::vector<cv::Vec4i> linesP;
-    cv::HoughLinesP(canny, linesP, rho, theta, thresh, minLineLength, maxGapLength);
-
-    if (drawHough) {
-        for (size_t i = 0; i < linesP.size(); i++) {
-            cv::Vec4i l = linesP[i];
-            cv::line(source, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]),
-                   cv::Scalar(0,0,255), 3, cv::LINE_AA);
-        }
-        cv::imshow("Hough Lines", source);
-        cv::waitKey();
-    }
-
-    return linesP;
 }
 
 cv::Mat RoadDetection::drawLanes(cv::Mat &source, std::vector<cv::Vec4i> lines) {
@@ -238,4 +207,79 @@ cv::Mat RoadDetection::drawLanes(cv::Mat &source, std::vector<cv::Vec4i> lines) 
         leftB0 = 1;
         drawLeftLane = false;
     }
+
+    int y1 = source.rows; // Y coordinate of starting point of both the left and right lane
+
+    /* 0.5 = trapezoidHeight (see RegionOfInterest), we set the y coordinate of the ending point
+    below the trapezoid height (0.4) to draw shorter lanes. I think that looks nicer. */
+
+    int y2 = source.rows * (1 - 0.4); // Y coordinate of ending point of both the left and right lane
+
+    // y = b1x + b0 --> x = (y - b0) / b1
+    int rightX1 = (y1 - rightB0) / rightB1; // X coordinate of starting point of right lane
+    int rightX2 = (y2 - rightB0) / rightB1; // X coordinate of ending point of right lane
+
+    int leftX1 = (y1 - leftB0) / leftB1; // X coordinate of starting point of left lane
+    int leftX2 = (y2 - leftB0) / leftB1; // X coordinate of ending point of left lane
+
+    /* If the ending point of the right lane is on the left side of the left lane (or vice versa),
+    return source image without drawings, because this should not be happening in real life. */
+    if (rightX2 < leftX2 || leftX2 > rightX2)
+    {
+        return source;
+    }
+
+    // Create the mask
+    cv::Mat mask = cv::Mat::zeros(source.size(), source.type());
+
+    // Draw lines and fill poly made up of the four points described above if both bools are true
+    cv::Mat dst; // Holds blended image
+    if (drawRightLane && drawLeftLane)
+    {
+
+        cv::Point pts[4] = {
+                cv::Point(leftX1, y1), // Starting point left lane
+                cv::Point(leftX2, y2), // Ending point left lane
+                cv::Point(rightX2, y2), // Ending point right lane
+                cv::Point(rightX1, y1) // Starting point right lane
+        };
+
+        fillConvexPoly(mask, pts, 4, cv::Scalar(0, 255, 0)); // Color is light blue
+
+        line(source, cv::Point(rightX1, y1), cv::Point(rightX2, y2), cv::Scalar(255, 0, 0), 7);
+        line(source, cv::Point(leftX1, y1), cv::Point(leftX2, y2), cv::Scalar(255, 0, 0), 7);
+
+        // Blend the mask and source image together
+        addWeighted(source, 0.9, mask, 0.3, 0.0, dst);
+
+        // Return blended image
+        return dst;
+    }
+
+    return source;
+}
+
+std::vector<cv::Vec4i> RoadDetection::houghLines(cv::Mat &canny,
+                                                 const cv::Mat &source,
+                                                 bool drawHough) {
+    double rho = 2;
+    double theta = 1 * M_PI / 180;
+    int thresh = 15;
+    double minLineLength = 10;
+    double maxGapLength = 20;
+
+    std::vector<cv::Vec4i> linesP;
+    cv::HoughLinesP(canny, linesP, rho, theta, thresh, minLineLength, maxGapLength);
+
+//    if (drawHough) {
+//        for (size_t i = 0; i < linesP.size(); i++) {
+//            cv::Vec4i l = linesP[i];
+//            cv::line(source, cv::Point(l[0], l[1]), cv::Point(l[2], l[3]),
+//                     cv::Scalar(255,0,0), 1, cv::LINE_AA);
+//        }
+//        cv::imshow("Hough Lines", source);
+//        cv::waitKey();
+//    }
+
+    return linesP;
 }

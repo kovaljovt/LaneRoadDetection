@@ -19,5 +19,5 @@ public:
 
     cv::Mat regionOfInterest(cv::Mat& source);
     cv::Mat drawLanes(cv::Mat& source, std::vector<cv::Vec4i> lines);
-    std::vector<cv::Vec4i> houghLines(cv::Mat& canny, cv::Mat& source, bool drawHough);
+    std::vector<cv::Vec4i> houghLines(cv::Mat& canny, const cv::Mat& source, bool drawHough);
 };
