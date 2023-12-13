@@ -103,6 +103,11 @@ void Application::runApp() {
         }
 
         ImGui::Begin("Video");
+        ImVec2 size = ImGui::GetContentRegionAvail();
+        ImVec2 imageSize = ImVec2(sizeX, sizeY);
+        ImVec2 pos = ImVec2((size.x - imageSize.x) / 2, (size.y - imageSize.y) / 2 + 24);
+
+        ImGui::SetCursorPos(pos);
         ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(img)), ImVec2(sizeX, sizeY));
         ImGui::End();
 
@@ -110,24 +115,44 @@ void Application::runApp() {
         /* Controls */
         ImGui::Begin("Controls");
 
-        if (ImGui::Button(!isPlaying ? "start" : "stop")) {
+        //ImGui::Button(!isPlaying ? "red" : "green")
+
+        ImGui::PushStyleColor(ImGuiCol_Button, !isPlaying ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0, 0, 1));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, !isPlaying ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0, 0, 1));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, !isPlaying ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0, 0, 1));
+        ImVec2 sizeStartStop = ImGui::GetContentRegionAvail();
+        if (ImGui::Button(!isPlaying ? "start" : "stop", ImVec2(sizeStartStop.x, sizeStartStop.x))) {
             isPlaying = !isPlaying;
         }
+        ImGui::PopStyleColor(3);
 
-        if (ImGui::Button("restart")) {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 0.55, 0, 1));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1, 0.55, 0, 1));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1, 0.55, 0, 1));
+        ImVec2 sizeRestart = ImGui::GetContentRegionAvail();
+        if (ImGui::Button("restart", ImVec2(sizeRestart.x, sizeRestart.x))) {
             player.previousVideo();
             player.nextVideo();
         }
+        ImGui::PopStyleColor(3);
 
-        if (ImGui::Button("previous")) {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.5, 0.5, 0.5, 1));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.5, 0.5, 0.5, 1));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5, 0.5, 0.5, 1));
+        ImVec2 sizeLeft = ImGui::GetContentRegionAvail();
+
+        if (ImGui::Button("previous", ImVec2(sizeLeft.x / 2 - ImGui::GetStyle().FramePadding.x,
+                                             sizeLeft.x / 2 - ImGui::GetStyle().FramePadding.x))) {
             player.previousVideo();
         };
 
         ImGui::SameLine();
 
-        if (ImGui::Button("next")) {
+        ImVec2 sizeRight = ImGui::GetContentRegionAvail();
+        if (ImGui::Button("next", ImVec2(sizeRight.x, sizeRight.x))) {
             player.nextVideo();
         };
+        ImGui::PopStyleColor(3);
 
         ImGui::End();
 
